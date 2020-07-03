@@ -9,3 +9,12 @@ Flex and Bison as part of their documentation build process and want to build
 on ReadTheDocs: they only support Python dependencies, and building from source
 each time eats away at their build time limit.
 
+**Running setup.py on your machine directly is unlikely to work, as some of the
+build logic is in the Dockerfile.** To build, do the following:
+
+ - Run `release.sh`. This will build the Python wheel in a manylinux docker
+   container and stick it in `dist/*.whl`.
+ - Install the wheel locally. Note that if you have a version of flex/bison
+   already installed through your package manager, it might break these if your
+   python prefix is the same!
+ - Make sure that the flex and bison executables are installed with the wheel.

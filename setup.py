@@ -34,17 +34,6 @@ class build(_build):
         self.build_base = build_dir
 
     def run(self):
-        from plumbum import local, FG
-        if platform.system() == "Darwin":
-            # brew install llvm
-            local.env["CXX"] = "/usr/local/opt/llvm/bin/clang++"
-
-        local['mkdir']("-p", cmake_build_dir)
-        with local.cwd(cmake_build_dir):
-            local['cmake']['../..']['-DCMAKE_INSTALL_PREFIX=' + prefix_dir] & FG
-            local['make']['-j'] & FG
-            local['make']['install'] & FG
-
         _build.run(self)
 
 class bdist_wheel(_bdist_wheel):
@@ -74,7 +63,7 @@ class egg_info(_egg_info):
 
 setup(
     name = 'flex-bison',
-    version = '0.0.1',
+    version = '0.0.2',
 
     author = 'QuTech, Delft University of Technology',
     author_email = '',
@@ -101,8 +90,8 @@ setup(
 
     data_files = [
         ('bin', [
-            prefix_dir + '/bin/flex',
-            prefix_dir + '/bin/bison',
+            '/usr/local/bin/flex',
+            '/usr/local/bin/bison',
         ]),
     ],
 

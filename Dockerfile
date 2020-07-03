@@ -22,7 +22,14 @@ echo '>                 # binary resides, named `<binary>.libs`.' >> auditwheel.
 echo ">                 dest_dir = pjoin(fn + '.libs')" >> auditwheel.patch && \
 patch /opt/_internal/cpython-3.6.10/lib/python3.6/site-packages/auditwheel/repair.py auditwheel.patch
 
+RUN mkdir -p flex && curl -L https://github.com/westes/flex/files/981163/flex-2.6.4.tar.gz | tar xz -C /flex/ --strip-components=1 && \
+    cd flex && ./configure && make -j && make install && cd ..
+
+RUN mkdir -p bison && curl -L ftp://ftp.gnu.org/gnu/bison/bison-3.5.tar.gz | tar xz -C /bison/ --strip-components=1 && \
+    cd bison && ./configure && make -j && make install && cd ..
+
 ADD . .
+
 ENTRYPOINT ["bash", "-c", "\
     ${PYBIN}/python3 setup.py bdist_wheel && \
     LD_LIBRARY_PATH=/opt/python/cp36-cp36m/lib AUDITWHEEL_MOD_PYVER=cp35 ${PYBIN}/python3 -m auditwheel repair -w /io/dist target/python/dist/*.whl && \
