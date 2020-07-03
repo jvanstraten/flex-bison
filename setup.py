@@ -13,9 +13,7 @@ from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 target_dir = os.getcwd() + "/target"
 py_target_dir = target_dir + "/python"
-include_dir = target_dir + "/include"
-cmake_build_dir = target_dir + "/build"
-prefix_dir = target_dir + "/prefix"
+hack_dir = target_dir + "/hack"
 build_dir = py_target_dir + "/build"
 dist_dir = py_target_dir + "/dist"
 
@@ -34,6 +32,23 @@ class build(_build):
         self.build_base = build_dir
 
     def run(self):
+        # The binaries as produced by the flex/bison build systems refer to the
+        # m4 found by their configure script using its full path. Because m4
+        # doesn't exist on ReadTheDocs and pip will certainly not put it in
+        # /usr/bin when ReadTheDocs installs this module, we, wel... hack the
+        # string in the binary to have it not be a full path.
+        if not os.path.exists(hack_dir):
+            os.makedirs(hack_dir)
+        for binary in ['flex', 'bison']:
+            with open('/usr/local/bin/' + binary, 'rb') as f:
+                data = f.read()
+            # be careful not to change the string length! 12 chars including
+            # original NUL termination!
+            data = data.replace(b'/usr/bin/m4\0', b'm4' + b'\0'*10)
+            with open(hack_dir + '/' + binary, 'wb') as f:
+                f.write(data)
+            os.chmod(hack_dir + '/' + binary, 0b111101101)
+            print('wrote ' + hack_dir + '/' + binary)
         _build.run(self)
 
 class bdist_wheel(_bdist_wheel):
@@ -90,8 +105,9 @@ setup(
 
     data_files = [
         ('bin', [
-            '/usr/local/bin/flex',
-            '/usr/local/bin/bison',
+            hack_dir + '/flex',
+            hack_dir + '/bison',
+            '/usr/bin/m4',
         ]),
     ],
 
@@ -108,10 +124,6 @@ setup(
         'egg_info': egg_info,
         'sdist': sdist,
     },
-
-    setup_requires = [
-        'plumbum',
-    ],
 
     zip_safe = False,
 )

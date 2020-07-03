@@ -1,3 +1,10 @@
+# BROKEN
+
+**It seems this idea is fundamentally broken, because flex & bison hardcode all
+kinds of paths in their executables, and thus their install dir is not
+relocatable, which is necessary for a wheel install in a virtualenv to work.**
+
+
 # flex + bison wrapper
 
 [![PyPi](https://badgen.net/pypi/v/flex-bison)](https://pypi.org/project/flex-bison/)
