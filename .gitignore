@@ -1,0 +1,6 @@
+/target
+/dist
+*.pyc
+.eggs/
+*.repro
+/python/dqcsim_cqasm/test.py
